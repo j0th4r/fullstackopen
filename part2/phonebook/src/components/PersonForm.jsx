@@ -12,6 +12,24 @@ function PersonForm({ persons, setPersons }) {
       number: newNumber,
     };
 
+    const existingPerson = persons.find(person => person.name.toLowerCase() === newName.toLowerCase());
+
+    if (existingPerson) {
+      if (!window.confirm(`${newName} is already added to phonebook, replace the old number with a new one?`)) {
+        return;
+      }
+
+      const updatedPerson = { ...existingPerson, number: newNumber };
+
+      personService.update(existingPerson.id, updatedPerson).then(returnedPerson => {
+        setPersons(persons.map(person => person.id !== existingPerson.id ? person : returnedPerson));
+        setNewName('');
+        setNewNumber('');
+      })
+    
+      return;
+    }
+
     personService.create(personObject).then(returnedPerson => {
       setPersons(persons.concat(returnedPerson));
       setNewName('');

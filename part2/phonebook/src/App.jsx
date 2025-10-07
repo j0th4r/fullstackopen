@@ -14,12 +14,6 @@ const App = () => {
     });
   }, []);
 
-  const deletePerson = (id) => {
-    personService.deletePerson(id).then(() => {
-      setPersons(persons.filter(person => person.id !== id));
-    });
-  }
-
   return (
     <div>
       <h2>Phonebook</h2>

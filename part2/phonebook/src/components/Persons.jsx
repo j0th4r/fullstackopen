@@ -6,6 +6,10 @@ function Persons({ persons, setPersons, filter }) {
   ) || [];
 
   const deletePerson = (id) => {
+    if (!window.confirm('Are you sure you want to delete this person?')) {
+      return;
+    }
+
     personService.deletePerson(id).then(() => {
       setPersons(persons.filter(person => person.id !== id));
       console.log(`Deleted person with id: ${id}`);
