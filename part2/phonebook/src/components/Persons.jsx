@@ -1,20 +1,32 @@
 import personService from '../services/persons';
 
-function Persons({ persons, setPersons, filter }) {
-  const searchResults = persons?.filter((person) =>
-    person.name.toLowerCase().includes(filter.toLowerCase())
-  ) || [];
+function Persons({persons, setPersons, filter, showNotification}) {
+  const searchResults =
+    persons?.filter((person) =>
+      person.name.toLowerCase().includes(filter.toLowerCase())
+    ) || [];
 
   const deletePerson = (id) => {
-    if (!window.confirm('Are you sure you want to delete this person?')) {
+    const personToDelete = persons.find((person) => person.id === id);
+
+    if (!window.confirm(`Delete ${personToDelete?.name}?`)) {
       return;
     }
 
-    personService.deletePerson(id).then(() => {
-      setPersons(persons.filter(person => person.id !== id));
-      console.log(`Deleted person with id: ${id}`);
-    });
-  }
+    personService
+      .deletePerson(id)
+      .then(() => {
+        setPersons(persons.filter((person) => person.id !== id));
+        showNotification(`Deleted ${personToDelete.name}`, 'success');
+      })
+      .catch((error) => {
+        showNotification(
+          `Information of ${personToDelete.name} has already been removed from the server`,
+          'error'
+        );
+        setPersons(persons.filter((person) => person.id !== id));
+      });
+  };
 
   return (
     <>
@@ -27,4 +39,4 @@ function Persons({ persons, setPersons, filter }) {
     </>
   );
 }
-export default Persons
+export default Persons;

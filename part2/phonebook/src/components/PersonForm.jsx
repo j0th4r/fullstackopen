@@ -1,7 +1,7 @@
-import { useState } from 'react';
+import {useState} from 'react';
 import personService from '../services/persons';
 
-function PersonForm({ persons, setPersons }) {
+function PersonForm({persons, setPersons, showNotification}) {
   const [newName, setNewName] = useState('');
   const [newNumber, setNewNumber] = useState('');
 
@@ -12,38 +12,63 @@ function PersonForm({ persons, setPersons }) {
       number: newNumber,
     };
 
-    const existingPerson = persons.find(person => person.name.toLowerCase() === newName.toLowerCase());
+    const existingPerson = persons.find(
+      (person) => person.name.toLowerCase() === newName.toLowerCase()
+    );
 
     if (existingPerson) {
-      if (!window.confirm(`${newName} is already added to phonebook, replace the old number with a new one?`)) {
+      if (
+        !window.confirm(
+          `${newName} is already added to phonebook, replace the old number with a new one?`
+        )
+      ) {
         return;
       }
 
-      const updatedPerson = { ...existingPerson, number: newNumber };
+      const updatedPerson = {...existingPerson, number: newNumber};
 
-      personService.update(existingPerson.id, updatedPerson).then(returnedPerson => {
-        setPersons(persons.map(person => person.id !== existingPerson.id ? person : returnedPerson));
-        setNewName('');
-        setNewNumber('');
-      })
-    
+      personService
+        .update(existingPerson.id, updatedPerson)
+        .then((returnedPerson) => {
+          setPersons(
+            persons.map((person) =>
+              person.id !== existingPerson.id ? person : returnedPerson
+            )
+          );
+          setNewName('');
+          setNewNumber('');
+        })
+        .catch((error) => {
+          showNotification(
+            `Information of ${existingPerson.name} has already been removed from the server`,
+            'error'
+          );
+          setPersons(persons.filter((person) => person.id !== existingPerson.id));
+        });
+
       return;
     }
 
-    personService.create(personObject).then(returnedPerson => {
+    personService.create(personObject).then((returnedPerson) => {
       setPersons(persons.concat(returnedPerson));
       setNewName('');
       setNewNumber('');
+      showNotification(`Added ${returnedPerson.name}`, 'success');
     });
   };
 
   return (
     <form onSubmit={addPerson}>
       <div>
-        name: <input value={newName} onChange={(e) => setNewName(e.target.value)} />
+        name:{' '}
+        <input value={newName} onChange={(e) => setNewName(e.target.value)} />
       </div>
       <div>
-        number: <input value={newNumber} onChange={(e) => setNewNumber(e.target.value)} />
+        number:{' '}
+        <input
+          value={newNumber}
+          onChange={(e) => setNewNumber(e.target.value)}
+        />
       </div>
       <div>
         <button type="submit">add</button>
@@ -51,4 +76,4 @@ function PersonForm({ persons, setPersons }) {
     </form>
   );
 }
-export default PersonForm
+export default PersonForm;
