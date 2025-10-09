@@ -1,5 +1,6 @@
-const express = require('express')
-const app = express()
+const express = require('express');
+const app = express();
+app.use(express.json());
 
 let persons = [
   {
@@ -29,26 +30,24 @@ app.get('/info', (request, response) => {
     <div>Phonebook has entry for ${persons.length} people</div> 
     <br>
     <div>${Date()}</div>
-  `)
-})
+  `);
+});
 
 app.get('/api/persons', (request, response) => {
-  response.json(persons)
-})
+  response.json(persons);
+});
 
 app.get('/api/persons/:id', (request, response) => {
-  const id = request.params.id
-  const person = persons.find((person) => person.id === id)
-  
-  if(person) {
-    response.json(person)
-  } else {
-    response.statusMessage = 'No matching person is found'
-    response.status(404).end()
+  const id = request.params.id;
+  const person = persons.find((person) => person.id === id);
+
+  if (!person) {
+    response.statusMessage = 'No matching person is found';
+    response.status(404).end();
   }
 
-
-})
+  response.json(person);
+});
 
 app.delete('/api/persons/:id', (request, response) => {
   const id = request.params.id;
@@ -57,7 +56,43 @@ app.delete('/api/persons/:id', (request, response) => {
   response.status(204).end();
 });
 
-const PORT = 3001
+const generateId = () => {
+  const maxId =
+    persons.length > 0 ? Math.floor(Math.random() * (200 - 5 + 1) + 5) : 0;
+  return String(maxId + 1);
+};
+
+app.post('/api/persons', (request, response) => {
+  const body = request.body;
+
+  if (!body.name || !body.number) {
+    return response.status(400).json({
+      error: 'name or number is missing',
+    });
+  }
+
+  const nameExist = persons.find(
+    (person) => person.name.toLowerCase() === body.name.toLowerCase()
+  );
+
+  if (nameExist) {
+    return response.status(400).json({
+      error: 'name must be unique',
+    });
+  }
+
+  const person = {
+    name: body.name,
+    number: body.number,
+    id: generateId(),
+  };
+
+  persons = persons.concat(person);
+
+  response.json(person);
+});
+
+const PORT = 3001;
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`)
-})
+  console.log(`Server running on port ${PORT}`);
+});
