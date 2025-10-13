@@ -39,22 +39,28 @@ function PersonForm({persons, setPersons, showNotification}) {
           setNewNumber('');
         })
         .catch((error) => {
-          showNotification(
-            `Information of ${existingPerson.name} has already been removed from the server`,
-            'error'
+          showNotification(`${error.response.data.error}`, 'error');
+          setPersons(
+            persons.filter((person) => person.id !== existingPerson.id)
           );
-          setPersons(persons.filter((person) => person.id !== existingPerson.id));
+          console.log(error.response.data.error);
         });
 
       return;
     }
 
-    personService.create(personObject).then((returnedPerson) => {
-      setPersons(persons.concat(returnedPerson));
-      setNewName('');
-      setNewNumber('');
-      showNotification(`Added ${returnedPerson.name}`, 'success');
-    });
+    personService
+      .create(personObject)
+      .then((returnedPerson) => {
+        setPersons(persons.concat(returnedPerson));
+        setNewName('');
+        setNewNumber('');
+        showNotification(`Added ${returnedPerson.name}`, 'success');
+      })
+      .catch((error) => {
+        showNotification(error.response.data.error, 'error');
+        console.log(error.response.data.error);
+      });
   };
 
   return (

@@ -25,6 +25,7 @@ function Persons({persons, setPersons, filter, showNotification}) {
           'error'
         );
         setPersons(persons.filter((person) => person.id !== id));
+        console.log(error.response.data.error);
       });
   };
 
@@ -32,7 +33,7 @@ function Persons({persons, setPersons, filter, showNotification}) {
     <>
       {searchResults.map((person) => (
         <div key={person.id}>
-          {person.name} {person.number}
+          {person.name} {person.number} {' '}
           <button onClick={() => deletePerson(person.id)}>Delete</button>
         </div>
       ))}
