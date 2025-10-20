@@ -1,36 +1,49 @@
-const blogsRouter = require('express').Router();
 const Blog = require('../models/blog');
+const blogsRouter = require('express').Router();
+const { userExtractor } = require('../utils/middleware');
 
-blogsRouter.get('/', async (request, response) => {
-  const blogs = await Blog.find({});
-  response.json(blogs);
+blogsRouter.get('/', (request, response) => {
+  Blog.find({})
+    .populate('user', { username: 1, name: 1, id: 1 })
+    .then((blogs) => {
+      response.json(blogs);
+    });
 });
 
-blogsRouter.get('/:id', async (request, response) => {
-  const blog = await Blog.findById(request.params.id);
-  if (blog) {
-    response.json(blog);
-  } else {
-    response.status(404).end();
+blogsRouter.post('/', userExtractor, async (request, response) => {
+  const user = request.user;
+  const blog = new Blog(request.body);
+
+  blog.likes = blog.likes | 0;
+  blog.user = user._id;
+
+  if (!blog.title || !blog.url) {
+    return response.status(400).send({ error: 'title or url missing' });
   }
-});
 
-blogsRouter.post('/', async (request, response) => {
-  const body = request.body;
-
-  const blog = new Blog({
-    title: body.title,
-    author: body.author,
-    url: body.url,
-    likes: body.likes,
-  });
+  user.blogs = user.blogs.concat(blog._id);
+  await user.save();
 
   const savedBlog = await blog.save();
+
   response.status(201).json(savedBlog);
 });
 
-blogsRouter.delete('/:id', async (request, response) => {
-  await Blog.findByIdAndDelete(request.params.id);
+blogsRouter.delete('/:id', userExtractor, async (request, response) => {
+  const user = request.user;
+  const blog = await Blog.findById(request.params.id);
+
+  if (!blog) {
+    return response.status(204).end();
+  }
+
+  if (user.id.toString() !== blog.user.toString()) {
+    return response.status(403).json({ error: 'user not authorized' });
+  }
+
+  user.blogs = user.blogs.filter((b) => b.id.toString() !== blog.id.toString());
+
+  await blog.deleteOne();
   response.status(204).end();
 });
 
@@ -48,25 +61,9 @@ blogsRouter.put('/:id', async (request, response) => {
   blog.url = url;
   blog.likes = likes;
 
-  const updatedBlog = await blog.save()
-  response.json(updatedBlog)
+  const updatedBlog = await blog.save();
 
-  // Blog.findById(request.params.id)
-  //   .then((blog) => {
-  //     if (!blog) {
-  //       return response.status(404).end();
-  //     }
-
-  //     blog.title = title;
-  //     blog.author = author;
-  //     blog.url = url;
-  //     blog.likes = likes;
-
-  //     return blog.save().then((updatedBlog) => {
-  //       response.json(updatedBlog);
-  //     });
-  //   })
-  //   .catch((error) => next(error));
+  response.json(updatedBlog);
 });
 
 module.exports = blogsRouter;
