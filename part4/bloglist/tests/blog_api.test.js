@@ -144,7 +144,7 @@ describe('when there are initially some blogs saved', () => {
 
   describe('deletion of a blog', () => {
     test('succeeds with status code 204 if id is valid', async () => {
-      blogsAtStart = await helper.blogsInDb();
+      const blogsAtStart = await helper.blogsInDb();
       const blogToDelete = blogsAtStart[0];
 
       await api
