@@ -1,7 +1,11 @@
-import loginService from "../services/login"
-import blogService from "../services/blogs"
+import loginService from '../services/login';
+import blogService from '../services/blogs';
+import { useState } from 'react';
 
-const Login = ({username, setUsername, password, setPassword, setUser, showNotification,}) => {
+const Login = ({ setUser, showNotification }) => {
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+
   const handleLogin = async (event) => {
     event.preventDefault();
     try {
@@ -46,5 +50,5 @@ const Login = ({username, setUsername, password, setPassword, setUser, showNotif
       <button type="submit">login</button>
     </form>
   );
-}
-export default Login
+};
+export default Login;
