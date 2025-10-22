@@ -77,7 +77,9 @@ const Blog = ({ blog, blogs, setBlogs, showNotification, user }) => {
           </button>
         </div>
         <div>{nameOfUser}</div>
-        {user.name === nameOfUser && <button onClick={() => removeBlog(blog)}>remove</button>}
+        {user.name === nameOfUser && (
+          <button onClick={() => removeBlog(blog)}>remove</button>
+        )}
       </div>
     </div>
   );

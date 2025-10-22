@@ -1,4 +1,4 @@
-import blogService from '../services/blogs'
+import blogService from '../services/blogs';
 import { useState } from 'react';
 
 const NewBlog = ({ onCreate, showNotification }) => {
@@ -16,7 +16,7 @@ const NewBlog = ({ onCreate, showNotification }) => {
 
     try {
       const returnedBlog = await blogService.create(blogObject);
-      onCreate(returnedBlog)
+      onCreate(returnedBlog);
       setTitle('');
       setAuthor('');
       setUrl('');

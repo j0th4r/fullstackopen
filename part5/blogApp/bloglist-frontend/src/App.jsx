@@ -47,11 +47,11 @@ const App = () => {
   };
 
   const onCreate = (blog) => {
-    blogFormRef.current.toggleVisibility()
-    setBlogs((prev) => [...prev, {...blog, user}])
-  }
+    blogFormRef.current.toggleVisibility();
+    setBlogs((prev) => [...prev, { ...blog, user }]);
+  };
 
-  const byLikes = (a, b) => b.likes - a.likes
+  const byLikes = (a, b) => b.likes - a.likes;
 
   return (
     <div>
@@ -68,16 +68,20 @@ const App = () => {
             <button onClick={handleLogout}>logout</button>
           </div>
 
-          <Togglable buttonLabel="new blog" ref={blogFormRef} >
-            <NewBlog
-              onCreate={onCreate}
-              showNotification={showNotification}
-            />
+          <Togglable buttonLabel="new blog" ref={blogFormRef}>
+            <NewBlog onCreate={onCreate} showNotification={showNotification} />
           </Togglable>
 
           <br />
           {blogs.sort(byLikes).map((blog) => (
-            <Blog key={blog.id} blog={blog} blogs={blogs} setBlogs={setBlogs} showNotification={showNotification} user={user} />
+            <Blog
+              key={blog.id}
+              blog={blog}
+              blogs={blogs}
+              setBlogs={setBlogs}
+              showNotification={showNotification}
+              user={user}
+            />
           ))}
         </>
       )}
