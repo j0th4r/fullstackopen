@@ -63,10 +63,10 @@ const Blog = ({ blog, blogs, setBlogs, showNotification, user }) => {
   };
 
   return (
-    <div style={blogStyle}>
+    <div style={blogStyle} className='blog'>
       {blog.title} {blog.author}{' '}
       <button onClick={toggleVisibility}>{!visible ? 'view' : 'hide'}</button>
-      <div style={showWhenVisible}>
+      <div style={showWhenVisible} className='details'>
         <div>
           <a href={blog.url}>{blog.url}</a>
         </div>
