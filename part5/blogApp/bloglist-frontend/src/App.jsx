@@ -46,9 +46,22 @@ const App = () => {
     setUser(null);
   };
 
-  const onCreate = (blog) => {
-    blogFormRef.current.toggleVisibility();
-    setBlogs((prev) => [...prev, { ...blog, user }]);
+  const onCreate = async (blog) => {
+    try {
+      const returnedBlog = await blogService.create(blog);
+      blogFormRef.current.toggleVisibility();
+      setBlogs((prev) => [...prev, { ...returnedBlog, user }]);
+      showNotification(
+        `a new blog ${returnedBlog.title} by ${returnedBlog.author} added`,
+        'success'
+      );
+    } catch (error) {
+      showNotification(
+        error.response?.data?.error ?? 'Something went wrong',
+        'error'
+      );
+      console.error(error);
+    }
   };
 
   const addLike = async (blog) => {
@@ -112,7 +125,7 @@ const App = () => {
           </div>
 
           <Togglable buttonLabel="new blog" ref={blogFormRef}>
-            <NewBlog onCreate={onCreate} showNotification={showNotification} />
+            <NewBlog onCreate={onCreate} />
           </Togglable>
 
           <br />
