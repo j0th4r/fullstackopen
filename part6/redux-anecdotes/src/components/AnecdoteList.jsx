@@ -14,6 +14,7 @@ const AnecdoteList = () => {
 
     return filtered.sort((a, b) => b.votes - a.votes);
   });
+  
   const dispatch = useDispatch();
 
   const vote = (id) => {
