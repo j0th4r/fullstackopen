@@ -14,14 +14,14 @@ const notificationSlice = createSlice({
 });
 
 let timeoutID;
-export const setNotification = (message) => {
+export const setNotification = (message, seconds) => {
   return (dispatch) => {
     clearTimeout(timeoutID);
 
     dispatch(showNotification(message));
     timeoutID = setTimeout(() => {
       dispatch(clearNotification());
-    }, 5000);
+    }, seconds * 1000);
   };
 };
 
