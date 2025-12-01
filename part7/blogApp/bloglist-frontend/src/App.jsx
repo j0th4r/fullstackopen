@@ -6,11 +6,13 @@ import './index.css';
 import NewBlog from './components/NewBlog';
 import Login from './components/Login';
 import Togglable from './components/Togglable';
+import { setNotification } from './reducers/notificationReducer';
+import { useDispatch } from 'react-redux';
 
 const App = () => {
   const [blogs, setBlogs] = useState([]);
   const [user, setUser] = useState(null);
-  const [notification, setNotification] = useState(null);
+  const dispatch = useDispatch();
 
   useEffect(() => {
     async function getBlogs() {
@@ -32,13 +34,6 @@ const App = () => {
 
   const blogFormRef = useRef();
 
-  const showNotification = (message, type = 'error') => {
-    setNotification({ message, type });
-    setTimeout(() => {
-      setNotification(null);
-    }, 5000);
-  };
-
   const handleLogout = (event) => {
     event.preventDefault();
     window.localStorage.removeItem('loggedBlogappUser');
@@ -51,14 +46,20 @@ const App = () => {
       const returnedBlog = await blogService.create(blog);
       blogFormRef.current.toggleVisibility();
       setBlogs((prev) => [...prev, { ...returnedBlog, user }]);
-      showNotification(
-        `a new blog ${returnedBlog.title} by ${returnedBlog.author} added`,
-        'success'
+      dispatch(
+        setNotification(
+          `a new blog ${returnedBlog.title} by ${returnedBlog.author} added`,
+          'success',
+          5
+        )
       );
     } catch (error) {
-      showNotification(
-        error.response?.data?.error ?? 'Something went wrong',
-        'error'
+      dispatch(
+        setNotification(
+          error.response?.data?.error ?? 'Something went wrong',
+          'error',
+          5
+        )
       );
       console.error(error);
     }
@@ -68,21 +69,27 @@ const App = () => {
     try {
       const updatedBlog = await blogService.update(blog.id, {
         ...blog,
-        likes: blog.likes + 1,
+        likes: blog.likes + 1
       });
       setBlogs(
         blogs.map((b) =>
           b.id === blog.id ? { ...updatedBlog, user: blog.user } : b
         )
       );
-      showNotification(
-        `You liked ${updatedBlog.title} by ${updatedBlog.author}`,
-        'success'
+      dispatch(
+        setNotification(
+          `You liked ${updatedBlog.title} by ${updatedBlog.author}`,
+          'success',
+          5
+        )
       );
     } catch (error) {
-      showNotification(
-        error.response?.data?.error ?? 'Something went wrong',
-        'error'
+      dispatch(
+        setNotification(
+          error.response?.data?.error ?? 'Something went wrong',
+          'error',
+          5
+        )
       );
       console.error(error);
     }
@@ -93,14 +100,20 @@ const App = () => {
       try {
         await blogService.remove(blog.id);
         setBlogs(blogs.filter((b) => b.id !== blog.id));
-        showNotification(
-          `Blog ${blog.title}, by ${blog.author} removed`,
-          'success'
+        dispatch(
+          setNotification(
+            `Blog ${blog.title}, by ${blog.author} removed`,
+            'success',
+            5
+          )
         );
       } catch (error) {
-        showNotification(
-          error.response?.data?.error ?? 'Something went wrong',
-          'error'
+        dispatch(
+          setNotification(
+            error.response?.data?.error ?? 'Something went wrong',
+            'error',
+            5
+          )
         );
         console.error(error);
       }
@@ -112,11 +125,8 @@ const App = () => {
   return (
     <div>
       <h2>blogs</h2>
-      <Notification
-        message={notification?.message}
-        status={notification?.type}
-      />
-      {!user && <Login setUser={setUser} showNotification={showNotification} />}
+      <Notification />
+      {!user && <Login setUser={setUser} />}
       {user && (
         <>
           <div>

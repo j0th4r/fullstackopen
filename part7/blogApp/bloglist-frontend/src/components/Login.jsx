@@ -1,10 +1,13 @@
 import loginService from '../services/login';
 import blogService from '../services/blogs';
 import { useState } from 'react';
+import { useDispatch } from 'react-redux';
+import { setNotification } from '../reducers/notificationReducer';
 
-const Login = ({ setUser, showNotification }) => {
+const Login = ({ setUser }) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const dispatch = useDispatch();
 
   const handleLogin = async (event) => {
     event.preventDefault();
@@ -17,11 +20,13 @@ const Login = ({ setUser, showNotification }) => {
       setUsername('');
       setPassword('');
     } catch (error) {
-      showNotification(
-        error.response?.data?.error ?? 'Something went wrong',
-        'error'
+      dispatch(
+        setNotification(
+          error.response?.data?.error ?? 'Something went wrong',
+          'error',
+          5
+        )
       );
-      console.log(error);
     }
   };
 
