@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useEffect, useRef, useMemo } from 'react';
 import Blog from './components/Blog';
 import blogService from './services/blogs';
 import Notification from './components/Notification';
@@ -7,30 +7,36 @@ import NewBlog from './components/NewBlog';
 import Login from './components/Login';
 import Togglable from './components/Togglable';
 import { setNotification } from './reducers/notificationReducer';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import {
+  getBlog,
+  addBlog,
+  updateBlog,
+  deleteBlog
+} from './reducers/blogReducer';
+import { setUser, clearUser } from './reducers/userReducer';
 
 const App = () => {
-  const [blogs, setBlogs] = useState([]);
-  const [user, setUser] = useState(null);
+  const blogs = useSelector((state) => state.blog);
+  const user = useSelector((state) => state.user);
   const dispatch = useDispatch();
 
   useEffect(() => {
     async function getBlogs() {
       const blogs = await blogService.getAll();
-      setBlogs(blogs);
+      dispatch(getBlog(blogs));
     }
-
     getBlogs();
-  }, []);
+  }, [dispatch]);
 
   useEffect(() => {
     const loggedUserJSON = window.localStorage.getItem('loggedBlogappUser');
     if (loggedUserJSON) {
       const user = JSON.parse(loggedUserJSON);
-      setUser(user);
+      dispatch(setUser(user));
       blogService.setToken(user.token);
     }
-  }, []);
+  }, [dispatch]);
 
   const blogFormRef = useRef();
 
@@ -38,14 +44,14 @@ const App = () => {
     event.preventDefault();
     window.localStorage.removeItem('loggedBlogappUser');
     blogService.setToken(null);
-    setUser(null);
+    dispatch(clearUser());
   };
 
   const onCreate = async (blog) => {
     try {
       const returnedBlog = await blogService.create(blog);
       blogFormRef.current.toggleVisibility();
-      setBlogs((prev) => [...prev, { ...returnedBlog, user }]);
+      dispatch(addBlog({ ...returnedBlog, user }));
       dispatch(
         setNotification(
           `a new blog ${returnedBlog.title} by ${returnedBlog.author} added`,
@@ -71,11 +77,7 @@ const App = () => {
         ...blog,
         likes: blog.likes + 1
       });
-      setBlogs(
-        blogs.map((b) =>
-          b.id === blog.id ? { ...updatedBlog, user: blog.user } : b
-        )
-      );
+      dispatch(updateBlog({ ...updatedBlog, user: blog.user }));
       dispatch(
         setNotification(
           `You liked ${updatedBlog.title} by ${updatedBlog.author}`,
@@ -99,7 +101,7 @@ const App = () => {
     if (window.confirm(`Remove blog ${blog.title} by ${blog.author}`)) {
       try {
         await blogService.remove(blog.id);
-        setBlogs(blogs.filter((b) => b.id !== blog.id));
+        dispatch(deleteBlog(blog.id));
         dispatch(
           setNotification(
             `Blog ${blog.title}, by ${blog.author} removed`,
@@ -121,12 +123,15 @@ const App = () => {
   };
 
   const byLikes = (a, b) => b.likes - a.likes;
+  const sortedBlogs = useMemo(() => {
+    return [...blogs].sort(byLikes);
+  }, [blogs]);
 
   return (
     <div>
       <h2>blogs</h2>
       <Notification />
-      {!user && <Login setUser={setUser} />}
+      {!user && <Login />}
       {user && (
         <>
           <div>
@@ -139,7 +144,7 @@ const App = () => {
           </Togglable>
 
           <br />
-          {blogs.sort(byLikes).map((blog) => (
+          {sortedBlogs.map((blog) => (
             <Blog
               key={blog.id}
               blog={blog}
