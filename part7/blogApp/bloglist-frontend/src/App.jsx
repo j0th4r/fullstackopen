@@ -6,7 +6,6 @@ import './index.css';
 import NewBlog from './components/NewBlog';
 import Login from './components/Login';
 import Togglable from './components/Togglable';
-import { setNotification } from './reducers/notificationReducer';
 import { useDispatch, useSelector } from 'react-redux';
 import {
   getBlog,
@@ -15,10 +14,12 @@ import {
   deleteBlog
 } from './reducers/blogReducer';
 import { setUser, clearUser } from './reducers/userReducer';
+import { useNotification } from './hooks';
 
 const App = () => {
   const blogs = useSelector((state) => state.blog);
   const user = useSelector((state) => state.user);
+  const { setNotification } = useNotification();
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -52,21 +53,19 @@ const App = () => {
       const returnedBlog = await blogService.create(blog);
       blogFormRef.current.toggleVisibility();
       dispatch(addBlog({ ...returnedBlog, user }));
-      dispatch(
-        setNotification(
-          `a new blog ${returnedBlog.title} by ${returnedBlog.author} added`,
-          'success',
-          5
-        )
+
+      setNotification(
+        `a new blog ${returnedBlog.title} by ${returnedBlog.author} added`,
+        'success',
+        5
       );
     } catch (error) {
-      dispatch(
-        setNotification(
-          error.response?.data?.error ?? 'Something went wrong',
-          'error',
-          5
-        )
+      setNotification(
+        error.response?.data?.error ?? 'Something went wrong',
+        'error',
+        5
       );
+
       console.error(error);
     }
   };
@@ -78,21 +77,19 @@ const App = () => {
         likes: blog.likes + 1
       });
       dispatch(updateBlog({ ...updatedBlog, user: blog.user }));
-      dispatch(
-        setNotification(
-          `You liked ${updatedBlog.title} by ${updatedBlog.author}`,
-          'success',
-          5
-        )
+
+      setNotification(
+        `You liked ${updatedBlog.title} by ${updatedBlog.author}`,
+        'success',
+        5
       );
     } catch (error) {
-      dispatch(
-        setNotification(
-          error.response?.data?.error ?? 'Something went wrong',
-          'error',
-          5
-        )
+      setNotification(
+        error.response?.data?.error ?? 'Something went wrong',
+        'error',
+        5
       );
+
       console.error(error);
     }
   };
@@ -102,20 +99,17 @@ const App = () => {
       try {
         await blogService.remove(blog.id);
         dispatch(deleteBlog(blog.id));
-        dispatch(
-          setNotification(
-            `Blog ${blog.title}, by ${blog.author} removed`,
-            'success',
-            5
-          )
+
+        setNotification(
+          `Blog ${blog.title}, by ${blog.author} removed`,
+          'success',
+          5
         );
       } catch (error) {
-        dispatch(
-          setNotification(
-            error.response?.data?.error ?? 'Something went wrong',
-            'error',
-            5
-          )
+        setNotification(
+          error.response?.data?.error ?? 'Something went wrong',
+          'error',
+          5
         );
         console.error(error);
       }
