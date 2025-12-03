@@ -1,14 +1,13 @@
 import loginService from '../services/login';
 import blogService from '../services/blogs';
 import { useState } from 'react';
-import { useDispatch } from 'react-redux';
-import { setNotification } from '../reducers/notificationReducer';
-import { setUser } from '../reducers/userReducer';
+import { useLoggedUser, useNotification } from '../hooks';
 
 const Login = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const dispatch = useDispatch();
+  const { setNotification } = useNotification();
+  const { login } = useLoggedUser();
 
   const handleLogin = async (event) => {
     event.preventDefault();
@@ -17,16 +16,14 @@ const Login = () => {
 
       window.localStorage.setItem('loggedBlogappUser', JSON.stringify(user));
       blogService.setToken(user.token);
-      dispatch(setUser(user));
+      login(user);
       setUsername('');
       setPassword('');
     } catch (error) {
-      dispatch(
-        setNotification(
-          error.response?.data?.error ?? 'Something went wrong',
-          'error',
-          5
-        )
+      setNotification(
+        error.response?.data?.error ?? 'Something went wrong',
+        'error',
+        5
       );
     }
   };
