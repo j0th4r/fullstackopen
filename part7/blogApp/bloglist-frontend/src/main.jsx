@@ -3,6 +3,7 @@ import App from './App';
 import NotificationProvider from './contexts/NotificationContext';
 import UserProvider from './contexts/UserContext';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { BrowserRouter } from 'react-router-dom';
 
 const queryClient = new QueryClient();
 
@@ -10,7 +11,9 @@ ReactDOM.createRoot(document.getElementById('root')).render(
   <QueryClientProvider client={queryClient}>
     <UserProvider>
       <NotificationProvider>
-        <App />
+        <BrowserRouter>
+          <App />
+        </BrowserRouter>
       </NotificationProvider>
     </UserProvider>
   </QueryClientProvider>

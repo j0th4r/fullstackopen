@@ -1,29 +1,60 @@
-import { createContext, useReducer } from 'react';
+import { createContext, useContext, useReducer } from 'react';
 import { initialState, userReducer } from '../reducers/userReducer';
+import loginService from '../services/login';
+import storageService from '../services/storage';
 
-export const UserContext = createContext();
+const UserContext = createContext();
 
-function UserProvider({ children }) {
-  const [user, dispatch] = useReducer(userReducer, initialState);
-
-  const login = (user) => {
-    dispatch({
-      type: 'MOUNT_USER',
-      payload: user
-    });
-  };
-
-  const logout = () => {
-    dispatch({
-      type: 'CLEAR_USER'
-    });
-  };
+export const UserProvider = ({ children }) => {
+  const [user, userDispatch] = useReducer(userReducer, initialState);
 
   return (
-    <UserContext.Provider value={{ user, login, logout }}>
+    <UserContext.Provider value={[user, userDispatch ]}>
       {children}
     </UserContext.Provider>
   );
-}
+};
 
-export default UserProvider;
+export const useUser = () => {
+  const [value] = useContext(UserContext);
+
+  return value;
+};
+
+export const useLogin = () => {
+  const [, dispatch] = useContext(UserContext);
+
+  return async (credentials) => {
+    const user = await loginService.login(credentials);
+    dispatch({
+      type: 'SET',
+      payload: user
+    });
+    storageService.saveUser(user);
+  };
+};
+
+export const useLogout = () => {
+  const [, dispatch] = useContext(UserContext);
+
+  return async () => {
+    dispatch({ type: 'CLEAR' });
+    storageService.removeUser();
+  };
+};
+
+export const useInitUser = () => {
+  const [, dispatch] = useContext(UserContext);
+
+  return async () => {
+    const user = await storageService.loadUser();
+    if (user) {
+      dispatch({
+        type: 'SET',
+        payload: user
+      });
+    }
+  };
+};
+
+export default UserProvider

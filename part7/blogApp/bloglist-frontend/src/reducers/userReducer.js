@@ -2,10 +2,10 @@ export const initialState = null;
 
 export const userReducer = (state = initialState, { type, payload }) => {
   switch (type) {
-    case 'MOUNT_USER':
+    case 'SET':
       return payload;
 
-    case 'CLEAR_USER':
+    case 'CLEAR':
       return null;
 
     default:

@@ -1,19 +1,15 @@
-import { useContext } from 'react';
-import { NotificationContext } from '../contexts/NotificationContext.jsx';
-import { UserContext } from '../contexts/UserContext.jsx';
+import { useState } from 'react';
 
-export const useNotification = () => {
-  const context = useContext(NotificationContext);
-  if (!context) {
-    throw new Error('useNotification must be used within NotificationProvider');
-  }
-  return context;
-};
+export const useField = (type) => {
+  const [value, setValue] = useState('');
 
-export const useLoggedUser = () => {
-  const context = useContext(UserContext);
-  if (!context) {
-    throw new Error('useNotification must be used within NotificationProvider');
-  }
-  return context;
+  const onChange = (event) => {
+    setValue(event.target.value);
+  };
+
+  return {
+    type,
+    value,
+    onChange
+  };
 };

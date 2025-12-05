@@ -1,17 +1,17 @@
-export const initialState = null;
+export const initialState = { message: null };
 
 export const notificationReducer = (
   state = initialState,
   { type, payload }
 ) => {
   switch (type) {
-    case 'SHOW':
+    case 'SET':
       return {
         ...payload
       };
 
     case 'CLEAR':
-      return null;
+      return initialState;
 
     default:
       return state;

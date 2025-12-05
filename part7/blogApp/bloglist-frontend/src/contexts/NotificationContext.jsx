@@ -1,36 +1,42 @@
-import { createContext, useReducer } from 'react';
+import { createContext, useReducer, useContext } from 'react';
 import {
   initialState,
   notificationReducer
 } from '../reducers/notificationReducer';
 
-export const NotificationContext = createContext();
-let timeoutId;
+const NotificationContext = createContext();
 
-function NotificationProvider({ children }) {
-  const [notification, dispatch] = useReducer(
+export const NotificationProvider = ({ children }) => {
+  const [counter, counterDispatch] = useReducer(
     notificationReducer,
     initialState
   );
 
-  const setNotification = (message, status, seconds) => {
-    clearTimeout(timeoutId);
-
-    dispatch({
-      type: 'SHOW',
-      payload: { message, status, seconds }
-    });
-
-    timeoutId = setTimeout(() => {
-      dispatch({ type: 'CLEAR' });
-    }, seconds * 1000);
-  };
-
   return (
-    <NotificationContext.Provider value={{ notification, setNotification }}>
+    <NotificationContext.Provider value={[counter, counterDispatch]}>
       {children}
     </NotificationContext.Provider>
   );
-}
+};
+
+export const useNotification = () => {
+  const [value] = useContext(NotificationContext);
+
+  return value;
+};
+
+export const useNotifier = () => {
+  const [, dispatch] = useContext(NotificationContext);
+
+  return (message, type = 'info') => {
+    dispatch({
+      type: 'SET',
+      payload: { message, type }
+    });
+    setTimeout(() => {
+      dispatch({ type: 'CLEAR' });
+    }, 5000);
+  };
+};
 
 export default NotificationProvider;

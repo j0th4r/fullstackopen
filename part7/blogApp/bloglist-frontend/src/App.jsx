@@ -1,183 +1,85 @@
-  import { useEffect, useRef, useMemo } from 'react';
-  import Blog from './components/Blog';
-  import blogService from './services/blogs';
-  import Notification from './components/Notification';
-  import './index.css';
-  import NewBlog from './components/NewBlog';
-  import Login from './components/Login';
-  import Togglable from './components/Togglable';
-  import { useLoggedUser, useNotification } from './hooks';
-  import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useEffect, useRef } from 'react';
+import { Routes, Route, Link } from 'react-router-dom';
 
-  const App = () => {
-    const { setNotification } = useNotification();
-    const { user, login, logout } = useLoggedUser()
-    const queryClient = useQueryClient();
+import Blogs from './components/Blogs';
+import Blog from './components/Blog';
+import LoginForm from './components/Login';
+import NewBlog from './components/NewBlog';
+import Notification from './components/Notification';
+import Togglable from './components/Togglable';
+import Users from './components/Users';
+import User from './components/User';
 
-    const fetchBlogs = async () => {
-      return await blogService.getAll();
-    };
+import { useNotifier } from './contexts/NotificationContext';
+import { useUser, useInitUser, useLogout } from './contexts/UserContext';
 
-    const { data: blogs, isPending } = useQuery({
-      queryKey: ['blogs'],
-      queryFn: fetchBlogs,
-      refetchOnWindowFocus: false
-    });
+import { SmallButton, Page, Navigation } from './components/styled';
 
-    useEffect(() => {
-      const loggedUserJSON = window.localStorage.getItem('loggedBlogappUser');
-      if (loggedUserJSON) {
-        const user = JSON.parse(loggedUserJSON);
-        login(user);
-        blogService.setToken(user.token);
-      }
-    }, []);
+const App = () => {
+  const blogFormRef = useRef();
 
-    const blogFormRef = useRef();
+  const notifyWith = useNotifier();
+  const initUser = useInitUser();
+  const logout = useLogout();
 
-    const handleLogout = (event) => {
-      event.preventDefault();
-      window.localStorage.removeItem('loggedBlogappUser');
-      blogService.setToken(null);
-      logout();
-    };
+  useEffect(() => {
+    initUser();
+  }, []);
 
-    const newBlogMutation = useMutation({
-      mutationFn: blogService.create,
-      onSuccess: (newBlog) => {
-        const blogs = queryClient.getQueryData(['blogs']);
-        queryClient.setQueryData(['blogs'], blogs.concat({ ...newBlog, user }));
-      }
-    });
-
-    const onCreate = async (blog) => {
-      try {
-        const returnedBlog = await newBlogMutation.mutateAsync(blog);
-        blogFormRef.current.toggleVisibility();
-
-        setNotification(
-          `a new blog ${returnedBlog.title} by ${returnedBlog.author} added`,
-          'success',
-          5
-        );
-      } catch (error) {
-        setNotification(
-          error.response?.data?.error ?? 'Something went wrong',
-          'error',
-          5
-        );
-
-        console.error(error);
-      }
-    };
-
-    const updateBlogMutation = useMutation({
-      mutationFn: ({ id, data }) => blogService.update(id, data),
-      onSuccess: (updatedBlog, { data }) => {
-        const blogs = queryClient.getQueryData(['blogs']);
-        queryClient.setQueryData(
-          ['blogs'],
-          blogs.map((blog) => (blog.id === updatedBlog.id ? { ...updatedBlog, user: data.user } : blog))
-        );
-      }
-    });
-
-    const addLike = async (blog) => {
-      try {
-        await updateBlogMutation.mutateAsync({
-          id: blog.id,
-          data: {
-            ...blog,
-            likes: blog.likes + 1
-          }
-        });
-
-        setNotification(
-          `You liked ${blog.title} by ${blog.author}`,
-          'success',
-          5
-        );
-      } catch (error) {
-        setNotification(
-          error.response?.data?.error ?? 'Something went wrong',
-          'error',
-          5
-        );
-
-        console.error(error);
-      }
-    };
-
-    const deleteBlogMutation = useMutation({
-      mutationFn: blogService.remove,
-      onSuccess: (data, deletedBlogId) => {
-        const blogs = queryClient.getQueryData(['blogs']);
-        queryClient.setQueryData(
-          ['blogs'],
-          blogs.filter((blog) => blog.id !== deletedBlogId)
-        );
-      }
-    });
-
-    const removeBlog = async (blog) => {
-      if (window.confirm(`Remove blog ${blog.title} by ${blog.author}`)) {
-        try {
-          await deleteBlogMutation.mutateAsync(blog.id);
-
-          setNotification(
-            `Blog ${blog.title}, by ${blog.author} removed`,
-            'success',
-            5
-          );
-        } catch (error) {
-          setNotification(
-            error.response?.data?.error ?? 'Something went wrong',
-            'error',
-            5
-          );
-          console.error(error);
-        }
-      }
-    };
-
-    const byLikes = (a, b) => b.likes - a.likes;
-    const sortedBlogs = useMemo(() => {
-      if (!blogs) return [];
-      return [...blogs].sort(byLikes);
-    }, [blogs]);
-
-    return (
-      <div>
-        <h2>blogs</h2>
-        <Notification />
-        {!user && <Login />}
-        {user && (
-          <>
-            <div>
-              <span>{user.name} logged in</span>{' '}
-              <button onClick={handleLogout}>logout</button>
-            </div>
-
-            {isPending && <div>Fetching blogs...</div>}
-
-            <Togglable buttonLabel="new blog" ref={blogFormRef}>
-              <NewBlog onCreate={onCreate} />
-            </Togglable>
-
-            <br />
-            {sortedBlogs.map((blog) => (
-              <Blog
-                key={blog.id}
-                blog={blog}
-                addLike={addLike}
-                removeBlog={removeBlog}
-                user={user}
-              />
-            ))}
-          </>
-        )}
-      </div>
-    );
+  const handleLogout = async () => {
+    logout();
+    notifyWith('logged out');
   };
 
-  export default App;
+  const user = useUser();
+
+  if (!user) {
+    return (
+      <div>
+        <h2>log in to application</h2>
+        <Notification />
+        <LoginForm />
+      </div>
+    );
+  }
+
+  const padding = {
+    padding: 5
+  };
+
+  return (
+    <Page>
+      <h2>blog service</h2>
+      <Navigation>
+        <span style={padding}>
+          <strong>Blog app</strong>
+        </span>
+        <Link style={padding} to="/">
+          blogs
+        </Link>
+        <Link style={padding} to="/users">
+          users
+        </Link>
+        <span style={padding}>{user.name} logged in</span>
+        <span style={padding}>
+          <SmallButton onClick={handleLogout}>logout</SmallButton>
+        </span>
+      </Navigation>
+
+      <Notification />
+
+      <Routes>
+        <Route path="/users" element={<Users />}></Route>
+        <Route path="/users/:id" element={<User />}></Route>
+        <Route path="/blogs/:id" element={<Blog />}></Route>
+        <Route path="/" element={<Blogs />}></Route>
+      </Routes>
+
+      <Togglable buttonLabel="new note" ref={blogFormRef}>
+        <NewBlog hideMe={() => blogFormRef.current.toggleVisibility()} />
+      </Togglable>
+    </Page>
+  );
+};
+
+export default App;
