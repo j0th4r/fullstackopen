@@ -1,5 +1,6 @@
 const { ApolloServer } = require('@apollo/server');
 const { startStandaloneServer } = require('@apollo/server/standalone');
+const { v1: uuid } = require('uuid');
 
 let authors = [
   {
@@ -116,8 +117,18 @@ const typeDefs = /* GraphQL */ `
   type Query {
     bookCount: Int!
     authorCount: Int!
-    allBooks(genre: String): [Book!]!
+    allBooks(author: String, genre: String): [Book!]!
     allAuthors: [Author!]!
+  }
+
+  type Mutation {
+    addBook(
+      title: String!
+      author: String!
+      published: Int!
+      genres: [String]
+    ): Book
+    editAuthor(name: String!, setBornTo: Int!): Author
   }
 `;
 
@@ -126,11 +137,21 @@ const resolvers = {
     bookCount: () => books.length,
     authorCount: () => authors.length,
     allBooks: (root, args) => {
-      if (args.genre) {
-        return books.filter((book) => 
-          book.genres.includes(args.genre)
+      if (args.author && args.genre) {
+        return books.filter(
+          (book) =>
+            book.author === args.author && book.genres.includes(args.genre)
         );
       }
+
+      if (args.author) {
+        return books.filter((book) => book.author === args.author);
+      }
+
+      if (args.genre) {
+        return books.filter((book) => book.genres.includes(args.genre));
+      }
+
       return books;
     },
     allAuthors: () => {
@@ -140,6 +161,32 @@ const resolvers = {
         ).length;
         return { ...author, bookCount };
       });
+    },
+  },
+
+  Mutation: {
+    addBook: (root, args) => {
+      const author = authors.find((author) => author.name === args.author);
+
+      if (!author) {
+        author = { name: args.author, id: uuid() };
+        authors.push(author);
+      }
+
+      const book = { ...args, id: uuid() };
+      books = books.concat(book);
+      return book;
+    },
+    editAuthor: (root, args) => {
+      const author = authors.find((author) => author.name === args.name);
+
+      if (!author) {
+        return null;
+      }
+
+      author.born = args.setBornTo;
+
+      return author;
     },
   },
 };
