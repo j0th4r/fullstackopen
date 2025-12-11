@@ -169,8 +169,8 @@ const resolvers = {
       const author = authors.find((author) => author.name === args.author);
 
       if (!author) {
-        author = { name: args.author, id: uuid() };
-        authors.push(author);
+        const newAuthor = { name: args.author, id: uuid() };
+        authors.push(newAuthor);
       }
 
       const book = { ...args, id: uuid() };
