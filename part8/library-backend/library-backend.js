@@ -68,12 +68,12 @@ const resolvers = {
       // }
 
       // if (args.author) {
-      //   return books.filter((book) => book.author === args.author);
+      //   const books = Book.find({}).populate('author')
       // }
 
-      // if (args.genre) {
-      //   return books.filter((book) => book.genres.includes(args.genre));
-      // }
+      if (args.genre) {
+        return Book.find({genres: args.genre}).populate('author');   
+      }
 
       return Book.find({}).populate('author');
     },
@@ -94,24 +94,24 @@ const resolvers = {
       let author = await Author.findOne({ name: args.author });
 
       if (!author) {
-        author = new Author({ name: args.author, id: uuid() });
+        author = new Author({ name: args.author });
         await author.save()
       }
 
-      const book = new Book({ ...args, id: uuid(), author });
+      const book = new Book({ ...args, author });
       return book.save();
     },
-    // editAuthor: (root, args) => {
-    //   const author = authors.find((author) => author.name === args.name);
+    editAuthor: async (root, args) => {
+      const author = await Author.findOne({ name: args.name });
+      
+      if (!author) {
+        return null;
+      }
 
-    //   if (!author) {
-    //     return null;
-    //   }
+      author.born = args.setBornTo;
 
-    //   author.born = args.setBornTo;
-
-    //   return author;
-    // },
+      return await author.save();
+    },
   },
 };
 
