@@ -5,6 +5,7 @@ const mongoose = require('mongoose');
 mongoose.set('strictQuery', false);
 const Book = require('./src/models/book');
 const Author = require('./src/models/author');
+const { GraphQLError } = require('graphql');
 
 require('dotenv').config();
 
@@ -72,7 +73,7 @@ const resolvers = {
       // }
 
       if (args.genre) {
-        return Book.find({genres: args.genre}).populate('author');   
+        return Book.find({ genres: args.genre }).populate('author');
       }
 
       return Book.find({}).populate('author');
@@ -85,32 +86,53 @@ const resolvers = {
       //   return { ...author, bookCount };
       // })
 
-      return Author.find({})
+      return Author.find({});
     },
   },
 
   Mutation: {
     addBook: async (root, args) => {
-      let author = await Author.findOne({ name: args.author });
+      try {
+        let author = await Author.findOne({ name: args.author });
 
-      if (!author) {
-        author = new Author({ name: args.author });
-        await author.save()
+        if (!author) {
+          author = new Author({ name: args.author });
+          await author.save();
+        }
+
+        const book = new Book({ ...args, author });
+
+        return await book.save();
+      } catch (error) {
+        throw new GraphQLError(error.message, {
+          extensions: {
+            code: 'BAD_USER_INPUT',
+            invalidArgs: [args.author, args.title],
+            error,
+          },
+        });
       }
-
-      const book = new Book({ ...args, author });
-      return book.save();
     },
     editAuthor: async (root, args) => {
-      const author = await Author.findOne({ name: args.name });
-      
-      if (!author) {
-        return null;
+      try {
+        const author = await Author.findOne({ name: args.name });
+
+        if (!author) {
+          return null;
+        }
+
+        author.born = args.setBornTo;
+
+        return await author.save();
+      } catch (error) {
+        throw new GraphQLError(error.message, {
+          extensions: {
+            code: 'BAD_USER_INPUT',
+            invalidArgs: args.setBornTo,
+            error,
+          },
+        });
       }
-
-      author.born = args.setBornTo;
-
-      return await author.save();
     },
   },
 };
