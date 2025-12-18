@@ -139,7 +139,7 @@ const resolvers = {
         });
       }
     },
-    editAuthor: async (root, args) => {
+    editAuthor: async (root, args, context) => {
       try {
         const currentUser = context.currentUser;
 
