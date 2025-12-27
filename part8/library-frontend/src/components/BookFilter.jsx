@@ -1,5 +1,5 @@
 const BookFilter = ({ books, setGenre }) => {
-  const allGenres = [...new Set(books.flatMap((book) => book.genres))].concat('all genres');
+  const allGenres = [...new Set(books.flatMap((book) => book.genres))];
 
   return (
     <div>
@@ -8,6 +8,7 @@ const BookFilter = ({ books, setGenre }) => {
           {genre}
         </button>
       ))}
+      <button onClick={() => setGenre(null)}>all genres</button>
     </div>
   );
 };

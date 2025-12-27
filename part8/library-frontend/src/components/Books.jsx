@@ -4,10 +4,13 @@ import BookFilter from './BookFilter';
 import { useState } from 'react';
 
 const Books = ({ show }) => {
-  const [genre, setGenre] = useState('all genres');
-  const { data: booksData, loading } = useQuery(ALL_BOOKS);
+  const [genre, setGenre] = useState(null);
+  const { data: booksData, loading: booksLoading } = useQuery(ALL_BOOKS);
+  const { data: filteredBooks, loading: filteredBooksLoading } = useQuery(ALL_BOOKS, {
+    variables: { genre: genre },
+  });
 
-  if (loading) {
+  if (booksLoading || filteredBooksLoading) {
     return <div>loading...</div>;
   }
 
@@ -15,14 +18,19 @@ const Books = ({ show }) => {
     return null;
   }
 
-  const booksToShow =
-    genre === 'all genres'
-      ? booksData.allBooks
-      : booksData.allBooks.filter((book) => book.genres.includes(genre));
-
   return (
     <div>
       <h2>books</h2>
+
+      {genre === null ? (
+        <div>
+          in <strong>all genres</strong>
+        </div>
+      ) : (
+        <div>
+          in genre <strong>{genre}</strong>
+        </div>
+      )}
 
       <table>
         <tbody>
@@ -31,7 +39,7 @@ const Books = ({ show }) => {
             <th>author</th>
             <th>published</th>
           </tr>
-          {booksToShow.map((a) => (
+          {filteredBooks.allBooks.map((a) => (
             <tr key={a.id}>
               <td>{a.title}</td>
               <td>{a.author.name}</td>

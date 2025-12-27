@@ -9,14 +9,6 @@ const NewBook = (props) => {
   const [genre, setGenre] = useState('');
   const [genres, setGenres] = useState([]);
 
-  const [createBook] = useMutation(CREATE_BOOK, {
-    refetchQueries: [{ query: ALL_BOOKS }, { query: ALL_AUTHORS }],
-  });
-
-  if (!props.show) {
-    return null;
-  }
-
   const submit = async (event) => {
     event.preventDefault();
     createBook({ variables: { title, author, published, genres } });
@@ -32,22 +24,45 @@ const NewBook = (props) => {
     setGenre('');
   };
 
+  const updateCache = (cache, query, addedBook) => {
+    const uniqByName = (a) => {
+      let seen = new Set();
+      return a.filter((item) => {
+        let k = item.title;
+        return seen.has(k) ? false : seen.add(k);
+      });
+    };
+
+    cache.updateQuery(query, ({ allBooks }) => {
+      return {
+        allBooks: uniqByName(allBooks.concat(addedBook)),
+      };
+    });
+  };
+
+  const [createBook] = useMutation(CREATE_BOOK, {
+    refetchQueries: [{ query: ALL_AUTHORS }],
+    update: (cache, response) => {
+      const newBook = response.data.addBook;
+      updateCache(cache, { query: ALL_BOOKS, variables: { genre: null } }, newBook);
+      updateCache(cache, { query: ALL_BOOKS }, newBook);
+    },
+  });
+
+  if (!props.show) {
+    return null;
+  }
+
   return (
     <div>
       <form onSubmit={submit}>
         <div>
           title
-          <input
-            value={title}
-            onChange={({ target }) => setTitle(target.value)}
-          />
+          <input value={title} onChange={({ target }) => setTitle(target.value)} />
         </div>
         <div>
           author
-          <input
-            value={author}
-            onChange={({ target }) => setAuthor(target.value)}
-          />
+          <input value={author} onChange={({ target }) => setAuthor(target.value)} />
         </div>
         <div>
           published
@@ -58,10 +73,7 @@ const NewBook = (props) => {
           />
         </div>
         <div>
-          <input
-            value={genre}
-            onChange={({ target }) => setGenre(target.value)}
-          />
+          <input value={genre} onChange={({ target }) => setGenre(target.value)} />
           <button onClick={addGenre} type="button">
             add genre
           </button>
