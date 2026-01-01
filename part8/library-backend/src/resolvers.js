@@ -30,14 +30,17 @@ const resolvers = {
       return Book.find({}).populate('author');
     },
     allAuthors: async () => {
-      // return authors.map((author) => {
-      //   const bookCount = books.filter(
-      //     (book) => book.author === author.name
-      //   ).length;
-      //   return { ...author, bookCount };
-      // })
+      const authors = await Author.find({});
+      const books = await Book.find({});
 
-      return Author.find({});
+      return authors.map((author) => {
+        return {
+          name: author.name,
+          born: author.born,
+          bookCount: books.filter((b) => b.author.toString() === author._id.toString()).length,
+          id: author._id,
+        };
+      });
     },
     me: (root, args, context) => {
       return context.currentUser;
@@ -155,13 +158,8 @@ const resolvers = {
     },
   },
   Subscription: {
-    bookAdded: {  
+    bookAdded: {
       subscribe: () => pubsub.asyncIterableIterator('BOOK_ADDED'),
-    },
-  },
-  Author: {
-    bookCount: async (root) => {
-      return await Book.countDocuments({ author: root._id });
     },
   },
 };

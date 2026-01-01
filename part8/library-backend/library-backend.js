@@ -18,8 +18,6 @@ const User = require('./src/models/user');
 const typeDefs = require('./src/schema');
 const resolvers = require('./src/resolvers');
 
-mongoose.set('strictQuery', false);
-
 const MONGODB_URI = process.env.MONGODB_URI;
 
 console.log('connecting to', MONGODB_URI);
@@ -32,6 +30,9 @@ mongoose
   .catch((error) => {
     console.log('error connection to MongoDB:', error.message);
   });
+
+mongoose.set('debug', true);
+mongoose.set('strictQuery', false);
 
 const start = async () => {
   const app = express();
