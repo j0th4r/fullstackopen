@@ -3,13 +3,28 @@ import Authors from './components/Authors';
 import Books from './components/Books';
 import NewBook from './components/NewBook';
 import LoginForm from './components/LoginForm';
-import { useApolloClient } from '@apollo/client/react';
 import Recommend from './components/Recommend';
+import { useSubscription, useApolloClient } from '@apollo/client/react';
+import updateCache from './utils/cache';
+import { ALL_BOOKS, BOOK_ADDED } from './queries';
 
 const App = () => {
   const [page, setPage] = useState('authors');
   const [token, setToken] = useState(localStorage.getItem('user-token'));
   const client = useApolloClient();
+
+  useSubscription(BOOK_ADDED, {
+    onData: ({ data }) => {
+      const addedBook = data.data.bookAdded;
+      window.alert(`New book added: ${addedBook.title}`);
+
+      // Update the "all genres" list
+      updateCache(client.cache, { query: ALL_BOOKS }, addedBook);
+
+      // Update the "no genre selected" list (if used in your app)
+      updateCache(client.cache, { query: ALL_BOOKS, variables: { genre: null } }, addedBook);
+    },
+  });
 
   const logout = () => {
     setToken(null);
