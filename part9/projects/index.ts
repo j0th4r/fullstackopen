@@ -1,5 +1,6 @@
 import express from 'express';
 import { calculateBmi } from './bmiCalculator';
+import { calculateExercises } from './exerciseCalculator';
 import { isNotNumber } from './utils';
 const app = express();
 
@@ -10,7 +11,7 @@ app.get('/bmi', (req, res) => {
     res.status(400).json({
       error: 'malformatted parameters',
     });
-    return
+    return;
   }
 
   const heightNum = Number(height);
@@ -20,7 +21,7 @@ app.get('/bmi', (req, res) => {
     res.status(400).json({
       error: 'malformatted parameters',
     });
-    return
+    return;
   }
 
   const bmi = calculateBmi(heightNum, weightNum);
@@ -29,6 +30,35 @@ app.get('/bmi', (req, res) => {
     height: heightNum,
     bmi,
   });
+});
+
+app.use(express.json());
+
+app.post('/exercises', (req, res) => {
+  const { daily_exercises, target } = req.body as {
+    daily_exercises?: unknown;
+    target?: unknown;
+  };
+
+  if (!daily_exercises || target === undefined) {
+    res.status(400).json({ error: 'parameters missing' });
+    return;
+  }
+
+  if (!Array.isArray(daily_exercises) || isNotNumber(target)) {
+    res.status(400).json({ error: 'malformatted parameters' });
+    return;
+  }
+
+  const hours = daily_exercises.map((exercise) => Number(exercise));
+
+  if (hours.some((exercise) => isNotNumber(exercise))) {
+    res.status(400).json({ error: 'malformatted parameters' });
+    return;
+  }
+
+  const result = calculateExercises(hours, Number(target));
+  res.json(result);
 });
 
 const PORT = 3003;

@@ -60,7 +60,7 @@ const getRatingDescription = (rating: Rating): string => {
   }
 };
 
-const calculateExercises = (dailyHours: number[], target: number): Result => {
+export const calculateExercises = (dailyHours: number[], target: number): Result => {
   const periodLength = dailyHours.length;
   const trainingDays = dailyHours.filter((hours) => hours > 0).length;
   const average = dailyHours.reduce((a, b) => a + b, 0) / periodLength;
@@ -79,13 +79,15 @@ const calculateExercises = (dailyHours: number[], target: number): Result => {
   };
 };
 
-try {
-  const { dailyHours, target } = parseArguments(process.argv.slice(2));
-  console.log(calculateExercises(dailyHours, target));
-} catch (error: unknown) {
-  let errorMessage = 'Something bad happened.';
-  if (error instanceof Error) {
-    errorMessage += ' Error: ' + error.message;
+if (require.main === module) {
+  try {
+    const { dailyHours, target } = parseArguments(process.argv.slice(2));
+    console.log(calculateExercises(dailyHours, target));
+  } catch (error: unknown) {
+    let errorMessage = 'Something bad happened.';
+    if (error instanceof Error) {
+      errorMessage += ' Error: ' + error.message;
+    }
+    console.log(errorMessage);
   }
-  console.log(errorMessage);
 }
