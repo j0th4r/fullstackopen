@@ -1,4 +1,6 @@
-const diaryEntries = [
+import { NewEntrySchema } from '../src/utils';
+import { DiaryEntry } from './../src/types';
+const data = [
   {
     id: 1,
     date: '2017-01-01',
@@ -28,5 +30,11 @@ const diaryEntries = [
     comment: 'I almost failed the landing but I survived',
   },
 ];
+
+const diaryEntries: DiaryEntry[] = data.map((obj) => {
+  const { id, ...withoutId } = obj;
+  const parsed = NewEntrySchema.parse(withoutId);
+  return { ...parsed, id };
+});
 
 export default diaryEntries;
