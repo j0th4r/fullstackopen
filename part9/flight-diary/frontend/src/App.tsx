@@ -58,20 +58,117 @@ const App = () => {
       {error && <p style={{ color: 'red' }}>{error}</p>}
       <form onSubmit={diaryCreation}>
         <label>
-          date
-          <input value={date} onChange={(event) => setDate(event.target.value)} />
+          date:
+          <input type="date" value={date} onChange={(event) => setDate(event.target.value)} />
         </label>
-        <label>
-          visibility
-          <input
-            value={visibility}
-            onChange={(event) => setVisibility(event.target.value as Visibility)}
-          />
-        </label>
-        <label>
-          weather
-          <input value={weather} onChange={(event) => setWeather(event.target.value as Weather)} />
-        </label>
+
+        <div>
+          <label>visibility:</label>
+
+          <label>
+            <input
+              type="radio"
+              name="visibility"
+              value={Visibility.Great}
+              checked={visibility === Visibility.Great}
+              onChange={(event) => setVisibility(event.target.value as Visibility)}
+            />
+            {Visibility.Great}
+          </label>
+
+          <label>
+            <input
+              type="radio"
+              name="visibility"
+              value={Visibility.Good}
+              checked={visibility === Visibility.Good}
+              onChange={(event) => setVisibility(event.target.value as Visibility)}
+            />
+            {Visibility.Good}
+          </label>
+
+          <label>
+            <input
+              type="radio"
+              name="visibility"
+              value={Visibility.Ok}
+              checked={visibility === Visibility.Ok}
+              onChange={(event) => setVisibility(event.target.value as Visibility)}
+            />
+            {Visibility.Ok}
+          </label>
+
+          <label>
+            <input
+              type="radio"
+              name="visibility"
+              value={Visibility.Poor}
+              checked={visibility === Visibility.Poor}
+              onChange={(event) => setVisibility(event.target.value as Visibility)}
+            />
+            {Visibility.Poor}
+          </label>
+        </div>
+
+        <div>
+          <label>weather:</label>
+
+          <label>
+            <input
+              type="radio"
+              name="weather"
+              value={Weather.Sunny}
+              checked={weather === Weather.Sunny}
+              onChange={(event) => setWeather(event.target.value as Weather)}
+            />
+            {Weather.Sunny}
+          </label>
+
+          <label>
+            <input
+              type="radio"
+              name="weather"
+              value={Weather.Rainy}
+              checked={weather === Weather.Rainy}
+              onChange={(event) => setWeather(event.target.value as Weather)}
+            />
+            {Weather.Rainy}
+          </label>
+
+          <label>
+            <input
+              type="radio"
+              name="weather"
+              value={Weather.Cloudy}
+              checked={weather === Weather.Cloudy}
+              onChange={(event) => setWeather(event.target.value as Weather)}
+            />
+            {Weather.Cloudy}
+          </label>
+
+          <label>
+            <input
+              type="radio"
+              name="weather"
+              value={Weather.Stormy}
+              checked={weather === Weather.Stormy}
+              onChange={(event) => setWeather(event.target.value as Weather)}
+            />
+            {Weather.Stormy}
+          </label>
+
+          <label>
+            <input
+              type="radio"
+              name="weather"
+              value={Weather.Windy}
+              checked={weather === Weather.Windy}
+              onChange={(event) => setWeather(event.target.value as Weather)}
+            />
+            {Weather.Windy}
+          </label>
+        </div>
+
         <label>
           comment
           <input value={comment} onChange={(event) => setComment(event.target.value)} />
