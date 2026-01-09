@@ -47,7 +47,7 @@ const data = [
 const patients: Patient[] = data.map((obj) => {
   const { id, ...withoutId } = obj;
   const parsed = NewPatientSchema.parse(withoutId);
-  return { ...parsed, id };
+  return { ...parsed, id, entries: [] };
 });
 
 export default patients;

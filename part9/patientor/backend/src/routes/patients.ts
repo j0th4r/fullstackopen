@@ -27,6 +27,16 @@ router.get('/', (_req, res: Response<PublicPatient[]>) => {
   res.send(patientService.getPublicPatients());
 });
 
+router.get('/:id', (req: Request, res: Response<Patient>) => {
+  const patient = patientService.getPatient(String(req.params.id));
+  if (!patient) {
+    res.sendStatus(404);
+    return;
+  }
+  res.send(patient);
+  return;
+});
+
 router.post(
   '/',
   newPatientParser,
