@@ -43,15 +43,24 @@ const PatientPage = () => {
       <p>date of birth: {patient.dateOfBirth}</p>
       <p>occupation: {patient.occupation}</p>
 
-      <h2>Entries</h2>
+      <h2>entries</h2>
       {patient.entries.length === 0 ? (
-        <p>No entries yet</p>
+        <p>No entries</p>
       ) : (
-        <ul>
-          {patient.entries.map((_entry, index) => (
-            <li key={index}>/* later you’ll render real Entry fields */</li>
+        <div>
+          {patient.entries.map((entry) => (
+            <div key={entry.id}>
+              <p>
+                {entry.date} {entry.description}
+              </p>
+              <ul>
+                {entry.diagnosisCodes?.map((code) => (
+                  <li key={code}>{code}</li>
+                ))}
+              </ul>
+            </div>
           ))}
-        </ul>
+        </div>
       )}
     </div>
   );

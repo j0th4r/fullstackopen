@@ -11,7 +11,10 @@ export enum Gender {
 }
 
 export interface Entry {
-
+  id: string;
+  description: string;
+  date: string;
+  diagnosisCodes?: Array<Diagnosis['code']>;
 }
 
 export interface Patient {
