@@ -31,7 +31,7 @@ const App = () => {
     };
     void fetchDiagnoses();
   }, []);
-  
+
   return (
     <div className="App">
       <Router>

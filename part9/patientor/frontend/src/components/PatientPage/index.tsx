@@ -1,9 +1,23 @@
 import { useEffect, useState } from 'react';
-import { Diagnosis, Patient } from '../types';
+import { Diagnosis, Entry, Patient } from '../../types';
 import { useParams } from 'react-router-dom';
-import patientService from '../services/patients';
+import patientService from '../../services/patients';
 import MaleIcon from '@mui/icons-material/Male';
 import FemaleIcon from '@mui/icons-material/Female';
+import { Stack, Typography } from '@mui/material';
+import HealthCheck from './HealthCheck';
+import Hospital from './Hospital';
+import { assertNever } from '../../utils';
+import OccupationaHealthcare from './OccupationaHealthcare';
+
+interface EntryDetailsProps {
+  diagnoses: Diagnosis[];
+  entry: Entry;
+}
+
+interface PatientProps {
+  diagnoses: Diagnosis[];
+}
 
 const GenderIcon = ({ gender }: { gender: Patient['gender'] }) => {
   switch (gender) {
@@ -16,9 +30,18 @@ const GenderIcon = ({ gender }: { gender: Patient['gender'] }) => {
   }
 };
 
-interface PatientProps {
-  diagnoses: Diagnosis[];
-}
+const EntryDetails = ({ entry, diagnoses }: EntryDetailsProps) => {
+  switch (entry.type) {
+    case 'Hospital':
+      return <Hospital entry={entry} diagnoses={diagnoses} />;
+    case 'HealthCheck':
+      return <HealthCheck entry={entry} diagnoses={diagnoses} />;
+    case 'OccupationalHealthcare':
+      return <OccupationaHealthcare entry={entry} diagnoses={diagnoses} />;
+    default:
+      return assertNever(entry);
+  }
+};
 
 const PatientPage = ({ diagnoses }: PatientProps) => {
   const { id } = useParams();
@@ -49,25 +72,15 @@ const PatientPage = ({ diagnoses }: PatientProps) => {
 
       <h2>entries</h2>
       {patient.entries.length === 0 ? (
-        <p>No entries</p>
+        <Typography variant="body1" sx={{ mt: 1 }}>
+          no entries
+        </Typography>
       ) : (
         <div>
           {patient.entries.map((entry) => (
-            <div key={entry.id}>
-              <p>
-                {entry.date} {entry.description}
-              </p>
-              <ul>
-                {entry.diagnosisCodes?.map((code) => {
-                  const diagnosis = diagnoses.find((d) => d.code === code);
-                  return (
-                    <li key={code}>
-                      {code} {diagnosis?.name}
-                    </li>
-                  );
-                })}
-              </ul>
-            </div>
+            <Stack key={entry.id} sx={{ border: 1, borderRadius: 2, padding: 2, my: 2 }}>
+              <EntryDetails entry={entry} diagnoses={diagnoses} />
+            </Stack>
           ))}
         </div>
       )}
