@@ -3,10 +3,14 @@ import { Gender, HealthCheckRating } from './types';
 
 const DiagnosisCodeSchema = z.string();
 
-const SickLeaveSchema = z.object({
-  startDate: z.iso.date(),
-  endDate: z.iso.date(),
-});
+const SickLeaveSchema = z
+  .object({
+    startDate: z.iso.date(),
+    endDate: z.iso.date(),
+  })
+  .refine((data) => new Date(data.startDate) <= new Date(data.endDate), {
+    message: 'Sick leave startDate must be before or equal to endDate',
+  });
 
 const DischargeSchema = z.object({
   date: z.iso.date(),
