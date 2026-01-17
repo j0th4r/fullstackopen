@@ -49,13 +49,13 @@ module.exports = [
       ...react.configs.recommended.rules,
       'react/prop-types': 'off',
       'react/react-in-jsx-scope': 'off',
-      'react-native/no-raw-text': 'off',
     },
   },
   {
     files: ['**/*.{js,jsx}'],
     rules: {
       ...reactNative.configs.all.rules,
+      'react-native/no-raw-text': 'off',
     },
   },
 ];
