@@ -9,6 +9,7 @@ const styles = StyleSheet.create({
     borderRadius: 4,
     padding: 16,
     fontSize: theme.fontSizes.subheading,
+    fontFamily: theme.fonts.main,
   },
   error: {
     borderColor: theme.colors.error,
