@@ -8,6 +8,8 @@ const theme = {
     background: '#e1e4e8',
     repoItemBg: '#ffffff',
     formBg: '#ffffff',
+    error: '#d73a4a',
+    border: '#B8B8B8',
   },
   fontSizes: {
     body: 14,
