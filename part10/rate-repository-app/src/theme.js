@@ -7,6 +7,7 @@ const theme = {
     appBarBackground: '#24292e',
     background: '#e1e4e8',
     repoItemBg: '#ffffff',
+    formBg: '#ffffff',
   },
   fontSizes: {
     body: 14,

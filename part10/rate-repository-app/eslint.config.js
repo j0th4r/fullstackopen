@@ -56,6 +56,7 @@ module.exports = [
     rules: {
       ...reactNative.configs.all.rules,
       'react-native/no-raw-text': 'off',
+      // 'react-native/': ''
     },
   },
 ];
