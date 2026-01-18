@@ -16,6 +16,14 @@ module.exports = [
       },
     },
   },
+  {
+    files: ['app.config.js'],
+    languageOptions: {
+      globals: {
+        process: 'readonly',
+      },
+    },
+  },
   js.configs.recommended,
   {
     files: ['**/*.{js,jsx}'],
