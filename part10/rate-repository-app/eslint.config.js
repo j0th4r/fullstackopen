@@ -5,7 +5,7 @@ const babelParser = require('@babel/eslint-parser');
 
 module.exports = [
   {
-    files: ['eslint.config.js', 'babel.config.js'],
+    files: ['eslint.config.js', 'babel.config.js', 'metro.config.js'],
     languageOptions: {
       globals: {
         require: 'readonly',
@@ -38,6 +38,10 @@ module.exports = [
       },
       globals: {
         __DEV__: 'readonly',
+        console: 'readonly',
+        fetch: 'readonly',
+        FormData: 'readonly',
+        navigator: 'readonly',
       },
     },
     settings: {
