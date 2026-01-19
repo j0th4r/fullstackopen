@@ -4,8 +4,11 @@ import TextInput from './TextInput';
 import { useFormik } from 'formik';
 import * as yup from 'yup';
 import theme from '../theme';
+import useSignIn from '../hooks/useSignIn';
 
 const SignIn = () => {
+  const [signIn] = useSignIn();
+
   const initialValues = {
     username: '',
     password: '',
@@ -16,8 +19,15 @@ const SignIn = () => {
     password: yup.string().required('Password is required'),
   });
 
-  const onSubmit = (values) => {
-    console.log(values);
+  const onSubmit = async (values) => {
+    const { username, password } = values;
+
+    try {
+      const { data } = await signIn({ username, password });
+      console.log(data);
+    } catch (e) {
+      console.log(e);
+    }
   };
 
   const formik = useFormik({
