@@ -8,7 +8,19 @@ const styles = StyleSheet.create({
   },
 });
 
-const AppBarTab = ({ children, route }) => {
+const AppBarTab = ({ children, route, onPress }) => {
+  // If onPress is provided, use Pressable without Link
+  if (onPress) {
+    return (
+      <Pressable style={styles.tab} onPress={onPress}>
+        <Text color="textBar" fontWeight="bold" fontSize="subheading">
+          {children}
+        </Text>
+      </Pressable>
+    );
+  }
+
+  // Otherwise, use Link for navigation
   return (
     <Pressable style={styles.tab}>
       <Link to={route}>
